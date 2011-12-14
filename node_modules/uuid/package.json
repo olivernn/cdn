@@ -1,0 +1,15 @@
+{
+  "name": "uuid",
+  "description": "Simple libuuid bindings to allow UUIDs to be generated from JS.",
+  "version": "0.0.2",
+  "author": "Nikhil Marathe",
+  "repository": {
+    "type": "hg",
+    "url": "http://bitbucket.org/nikhilm/uuidjs"
+  },
+  "engine": [ "node >=0.1.103" ],
+  "scripts": {
+    "preinstall": "node-waf configure && node-waf build"
+  },
+  "main": "build/default/uuid.node"
+}

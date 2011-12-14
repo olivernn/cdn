@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+var queryString = require('querystring'),
+    crypto = require('crypto'),
+    params = { timestamp: Date.now(), key: 'secret' }
+    urlWithoutSigniture = ['/image', queryString.stringify(params)].join('?')
+    hmac = crypto.createHmac("sha1", 'secret'),
+    hash = hmac.update(urlWithoutSigniture),
+    digest = hmac.digest('hex')
+
+console.log([urlWithoutSigniture, 'signiture=' + digest].join('&'))
+    
