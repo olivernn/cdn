@@ -19,12 +19,7 @@ var extractProcessCommand = function (processString) {
 }
 
 app.post('/image', authorize, function (req, res) {
-  var readStream = fs.createReadStream(req.files.image.path),
-      image = new Image
-
-  image.openWriteStream(function (writeStream) {
-    readStream.pipe(writeStream)
-  })
+  var image = Image.create(req.files.image)
 
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Location', ['/image', image.id].join())
@@ -33,7 +28,7 @@ app.post('/image', authorize, function (req, res) {
 })
 
 app.get('/image/:id', function (req, res) {
-  var image = new Image(req.params.id)
+  var image = Image.find(req.params.id)
 
   image.openReadStream(function (readStream) {
     readStream.pipe(res)
@@ -42,9 +37,9 @@ app.get('/image/:id', function (req, res) {
 
 app.get('/image/:id/process/:process', function (req, res) {
   var processCommand = extractProcessCommand(req.params.process),
-      image = new Image(req.params.id, processCommand)
+      image = Image.find(req.params.id)
 
-  image.openConvertStream(function (convertStream) {
+  image.openConvertStream(processCommand, function (convertStream) {
     convertStream.pipe(res)
   })
 })
