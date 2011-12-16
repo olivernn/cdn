@@ -18,6 +18,12 @@ var extractProcessCommand = function (processString) {
   return JSON.parse(new Buffer(processString, 'base64').toString('ascii'))
 }
 
+app.options('/image', function (req, res) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'POST')
+  res.send()
+})
+
 app.post('/image', authorize, function (req, res) {
   var image = Image.create(req.files.image)
 
