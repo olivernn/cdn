@@ -2,16 +2,24 @@ var express = require('express'),
     app = express.createServer(),
     fs = require('fs'),
     Image = require('./lib/image'),
-    SignedUrl = require('./lib/signed_url')
+    Signiture = require('./lib/signiture')
 
 app.configure(function () {
   app.use(express.bodyParser());
   app.use(express.static(__dirname + '/public'));
 });
 
-var authorize = function (req, res, next) {
-  var signedUrl = new SignedUrl(req.url)
-  signedUrl.authorized() ? next() : res.send(401)
+var authorizeFromUrl = function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'POST')
+
+  var signiture = Signiture.fromUrl(req.url)
+  signiture.authorized() ? next() : res.send(401)
+}
+
+var authorizeFromObj = function (req, res, next) {
+  var signiture = Signiture.fromObj(extractProcessCommand(req.params.process))
+  signiture.authorized() ? next() : res.send(401)
 }
 
 var extractProcessCommand = function (processString) {
@@ -24,7 +32,7 @@ app.options('/image', function (req, res) {
   res.send()
 })
 
-app.post('/image', authorize, function (req, res) {
+app.post('/image', authorizeFromUrl, function (req, res) {
   var image = Image.create(req.files.image)
 
   res.header('Access-Control-Allow-Origin', '*')
@@ -41,7 +49,7 @@ app.get('/image/:id', function (req, res) {
   })
 })
 
-app.get('/image/:id/process/:process', function (req, res) {
+app.get('/image/:id/process/:process', authorizeFromObj, function (req, res) {
   var processCommand = extractProcessCommand(req.params.process),
       image = Image.find(req.params.id)
 
