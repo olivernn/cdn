@@ -7,6 +7,9 @@ var express = require('express'),
 app.configure(function () {
   app.use(express.bodyParser());
   app.use(express.static(__dirname + '/public'));
+  app.use(express.logger({
+    'format': ':date :method :url :status - :response-time ms'
+  }))
 });
 
 var authorizeFromUrl = function (req, res, next) {
