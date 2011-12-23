@@ -35,31 +35,34 @@ app.options('/image', function (req, res) {
   res.send()
 })
 
-app.post('/image', authorizeFromUrl, function (req, res) {
+app.post('/apps/:app_id/images', authorizeFromUrl, function (req, res) {
   res.header('Access-Control-Allow-Origin', '*')
 
-  Image.create(req.files.image, function (err, image) {
+  Image.create(req.params.app_id, req.files.image, function (err, image) {
     if (err) throw(err)
     res.header('Location', ['/image', image.id].join())
     res.json({id: image.id}, 201)
   })
 })
 
-app.get('/image/:id', function (req, res) {
-  var image = Image.find(req.params.id)
+app.get('/apps/:app_id/images/:id', function (req, res) {
+  Image.find(req.params.app_id, req.params.id, function (err, image) {
+    if (err) throw(err)
 
-  image.openReadStream(function (readStream) {
-    readStream.pipe(res)
+    image.openReadStream(function (readStream) {
+      readStream.pipe(res)
+    })
   })
 })
 
-app.get('/image/:id/process/:process', authorizeFromObj, function (req, res) {
-  var processCommand = extractProcessCommand(req.params.process),
-      image = Image.find(req.params.id)
+app.get('/apps/:app_id/images/:id/process/:process', authorizeFromObj, function (req, res) {
+  var processCommand = extractProcessCommand(req.params.process)
 
-  image.openConvertStream(processCommand, function (err, convertStream) {
-    if (err) throw(err)
-    convertStream.pipe(res)
+  Image.find(req.params.app_id, req.params.id, function (err, image) {
+    image.openConvertStream(processCommand, function (err, convertStream) {
+      if (err) throw(err)
+      convertStream.pipe(res)
+    })
   })
 })
 
