@@ -29,12 +29,6 @@ var extractProcessCommand = function (processString) {
   return JSON.parse(new Buffer(processString, 'base64').toString('ascii'))
 }
 
-app.options('/image', function (req, res) {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Methods', 'POST')
-  res.send()
-})
-
 app.post('/apps/:app_id/images', authorizeFromUrl, function (req, res) {
   res.header('Access-Control-Allow-Origin', '*')
 
