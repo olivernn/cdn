@@ -25,6 +25,11 @@ var authorizeFromObj = function (req, res, next) {
   signiture.authorized() ? next() : res.send(401)
 }
 
+var cacheable = function (req, res, next) {
+  res.header('Cache-Control', 'public, max-age=31536000')
+  next()
+}
+
 var extractProcessCommand = function (processString) {
   return JSON.parse(new Buffer(processString, 'base64').toString('ascii'))
 }
@@ -39,7 +44,7 @@ app.post('/apps/:app_id/images', authorizeFromUrl, function (req, res) {
   })
 })
 
-app.get('/apps/:app_id/images/:id', function (req, res) {
+app.get('/apps/:app_id/images/:id', cacheable, function (req, res) {
   Image.find(req.params.app_id, req.params.id, function (err, image) {
     if (err) throw(err)
 
@@ -49,7 +54,7 @@ app.get('/apps/:app_id/images/:id', function (req, res) {
   })
 })
 
-app.get('/apps/:app_id/images/:id/process/:process', authorizeFromObj, function (req, res) {
+app.get('/apps/:app_id/images/:id/process/:process', authorizeFromObj, cacheable, function (req, res) {
   var processCommand = extractProcessCommand(req.params.process)
 
   Image.find(req.params.app_id, req.params.id, function (err, image) {
