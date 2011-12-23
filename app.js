@@ -36,12 +36,13 @@ app.options('/image', function (req, res) {
 })
 
 app.post('/image', authorizeFromUrl, function (req, res) {
-  var image = Image.create(req.files.image)
-
   res.header('Access-Control-Allow-Origin', '*')
-  res.header('Location', ['/image', image.id].join())
 
-  res.json({id: image.id}, 201)
+  Image.create(req.files.image, function (err, image) {
+    if (err) throw(err)
+    res.header('Location', ['/image', image.id].join())
+    res.json({id: image.id}, 201)
+  })
 })
 
 app.get('/image/:id', function (req, res) {
@@ -56,7 +57,8 @@ app.get('/image/:id/process/:process', authorizeFromObj, function (req, res) {
   var processCommand = extractProcessCommand(req.params.process),
       image = Image.find(req.params.id)
 
-  image.openConvertStream(processCommand, function (convertStream) {
+  image.openConvertStream(processCommand, function (err, convertStream) {
+    if (err) throw(err)
     convertStream.pipe(res)
   })
 })
